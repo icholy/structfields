@@ -14,6 +14,5 @@ type A struct {
 }
 
 type B struct {
-	A
 	sub.C
 }
