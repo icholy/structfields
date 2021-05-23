@@ -90,30 +90,28 @@ func Resolve(pkg *packages.Package, name string) (*ast.StructType, bool) {
 func Fields(pkg *packages.Package, stype *ast.StructType) []*FieldType {
 	var ff []*FieldType
 	for _, f := range stype.Fields.List {
-		if len(f.Names) != 1 {
-			continue
+		for _, name := range f.Names {
+			if !ast.IsExported(name.Name) {
+				continue
+			}
+			var doctxt string
+			if f.Doc != nil {
+				doctxt = f.Doc.Text()
+			}
+			if doctxt == "" && f.Comment != nil {
+				doctxt = f.Comment.Text()
+			}
+			var tagtxt string
+			if f.Tag != nil {
+				tagtxt = f.Tag.Value
+			}
+			ff = append(ff, &FieldType{
+				Name: name.Name,
+				Type: exprfmt(f.Type),
+				Doc:  doctxt,
+				Tag:  tagtxt,
+			})
 		}
-		name := f.Names[0].Name
-		if !ast.IsExported(name) {
-			continue
-		}
-		var doctxt string
-		if f.Doc != nil {
-			doctxt = f.Doc.Text()
-		}
-		if doctxt == "" && f.Comment != nil {
-			doctxt = f.Comment.Text()
-		}
-		var tagtxt string
-		if f.Tag != nil {
-			tagtxt = f.Tag.Value
-		}
-		ff = append(ff, &FieldType{
-			Name: name,
-			Type: exprfmt(f.Type),
-			Doc:  doctxt,
-			Tag:  tagtxt,
-		})
 	}
 	return ff
 }
