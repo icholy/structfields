@@ -110,7 +110,7 @@ func ResolveType(pkg *packages.Package, name string) (*ast.StructType, *ast.File
 // Fields returns a list of the struct type's fields.
 // A nil file may be passed, but this limits the ability to resolve embeded types.
 func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*FieldType {
-	var ff []*FieldType
+	ff := []*FieldType{}
 	for _, f := range stype.Fields.List {
 		// if there are no names, it's embedded
 		if len(f.Names) == 0 {
@@ -154,7 +154,7 @@ func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*Fie
 // Structs finds all structs in the provided package.
 // Embeded fields are treated the same as regular fields.
 func Structs(pkg *packages.Package) []*StructType {
-	var ss []*StructType
+	ss := []*StructType{}
 	for _, file := range pkg.Syntax {
 		ast.Inspect(file, func(n ast.Node) bool {
 			var s StructType
@@ -172,6 +172,7 @@ func Structs(pkg *packages.Package) []*StructType {
 				if !ok {
 					continue
 				}
+				s.Directives = []string{}
 				if decl.Doc != nil {
 					s.Doc = decl.Doc.Text()
 					for _, comment := range decl.Doc.List {
