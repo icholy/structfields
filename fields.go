@@ -38,7 +38,7 @@ func Load(dir string, pkgpath string) ([]*StructType, error) {
 	}
 	var ss []*StructType
 	for _, pkg := range pkgs {
-		ss = append(ss, Find(pkg)...)
+		ss = append(ss, Structs(pkg)...)
 	}
 	return ss, nil
 }
@@ -122,7 +122,7 @@ func Fields(pkg *packages.Package, stype *ast.StructType) []*FieldType {
 	return ff
 }
 
-func Find(pkg *packages.Package) []*StructType {
+func Structs(pkg *packages.Package) []*StructType {
 	var ss []*StructType
 	for _, file := range pkg.Syntax {
 		ast.Inspect(file, func(n ast.Node) bool {

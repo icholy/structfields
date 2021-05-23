@@ -23,8 +23,8 @@ func load(t *testing.T) *packages.Package {
 	return pkgs[0]
 }
 
-func TestLoad(t *testing.T) {
-	ss := Find(load(t))
+func TestStructs(t *testing.T) {
+	ss := Structs(load(t))
 	lookup := func(name string) *StructType {
 		t.Helper()
 		for _, s := range ss {
