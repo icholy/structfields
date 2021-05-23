@@ -16,6 +16,7 @@ func TestLoad(t *testing.T) {
 				{Name: "F1", Type: "string"},
 				{Name: "F2", Type: "int"},
 				{Name: "F3", Type: "bool"},
+				{Name: "F4", Type: "time.Duration"},
 			},
 		},
 	})
