@@ -205,6 +205,8 @@ func exprfmt(expr ast.Expr) string {
 		return "struct{ ... }"
 	case *ast.FuncType:
 		return "func(...) ..."
+	case *ast.ChanType:
+		return fmt.Sprintf("chan %s", exprfmt(e.Value))
 	default:
 		panic(fmt.Errorf("not implemented: %#v", expr))
 	}
