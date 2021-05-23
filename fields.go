@@ -5,23 +5,24 @@ import (
 	"go/ast"
 	"go/token"
 	"strconv"
-	"strings"
 
 	"golang.org/x/tools/go/packages"
 )
 
 type StructType struct {
-	Doc    string
-	Group  string
-	Name   string
-	Fields []*FieldType
+	Doc        string
+	Comment    string
+	Name       string
+	Directives []string
+	Fields     []*FieldType
 }
 
 type FieldType struct {
-	Name string
-	Type string
-	Doc  string
-	Tag  string
+	Name    string
+	Type    string
+	Doc     string
+	Comment string
+	Tag     string
 }
 
 func Load(dir string, pkgpath string) ([]*StructType, error) {
@@ -117,23 +118,20 @@ func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*Fie
 			if !ast.IsExported(name.Name) {
 				continue
 			}
-			var doctxt string
-			if f.Doc != nil {
-				doctxt = f.Doc.Text()
-			}
-			if doctxt == "" && f.Comment != nil {
-				doctxt = f.Comment.Text()
-			}
-			var tagtxt string
-			if f.Tag != nil {
-				tagtxt = f.Tag.Value
-			}
-			ff = append(ff, &FieldType{
-				Name: name.Name,
+			ft := FieldType{
+				Name: name.String(),
 				Type: exprfmt(f.Type),
-				Doc:  doctxt,
-				Tag:  tagtxt,
-			})
+			}
+			if f.Doc != nil {
+				ft.Doc = f.Doc.Text()
+			}
+			if f.Comment != nil {
+				ft.Comment = f.Comment.Text()
+			}
+			if f.Tag != nil {
+				ft.Tag = f.Tag.Value
+			}
+			ff = append(ff, &ft)
 		}
 	}
 	return ff
@@ -159,14 +157,6 @@ func Structs(pkg *packages.Package) []*StructType {
 			}
 			if decl.Doc != nil {
 				s.Doc = decl.Doc.Text()
-				for _, comment := range decl.Doc.List {
-					text := comment.Text
-					i := strings.Index(text, "go:docgen")
-					if i >= 0 {
-						s.Group = strings.TrimSpace(text[i+9:])
-						break
-					}
-				}
 			}
 			s.Fields = Fields(pkg, file, stype)
 			ss = append(ss, &s)

@@ -57,6 +57,31 @@ func TestStructs(t *testing.T) {
 			},
 		})
 	})
+	t.Run("E", func(t *testing.T) {
+		assert.DeepEqual(t, lookup("E"), &StructType{
+			Name: "E",
+			Doc:  "E is a struct\n",
+			Fields: []*FieldType{
+				{
+					Name:    "F1",
+					Type:    "string",
+					Doc:     "F1 is a string\n",
+					Comment: "F1 is the first field\n",
+					Tag:     "`json:\"Test\"`",
+				},
+				{
+					Name:    "F2",
+					Type:    "int",
+					Comment: "F2 only has a comment\n",
+				},
+				{
+					Name: "F3",
+					Type: "bool",
+					Doc:  "F3 only has a doc\n",
+				},
+			},
+		})
+	})
 }
 
 func TestResolve(t *testing.T) {
