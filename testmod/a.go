@@ -1,4 +1,4 @@
-package testdata
+package testmod
 
 type A struct {
 	F1 string

@@ -87,7 +87,7 @@ func Find(pkg *packages.Package) []*StructType {
 				if doctxt == "" && f.Comment != nil {
 					doctxt = f.Comment.Text()
 				}
-				tagtxt := "<none>"
+				var tagtxt string
 				if f.Tag != nil {
 					tagtxt = f.Tag.Value
 				}

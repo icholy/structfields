@@ -1,4 +1,4 @@
-module testdata
+module testmod
 
 go 1.16
 
