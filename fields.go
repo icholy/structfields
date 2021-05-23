@@ -143,23 +143,25 @@ func Structs(pkg *packages.Package) []*StructType {
 		ast.Inspect(file, func(n ast.Node) bool {
 			var s StructType
 			decl, ok := n.(*ast.GenDecl)
-			if !ok || decl.Tok != token.TYPE || len(decl.Specs) != 1 {
+			if !ok || decl.Tok != token.TYPE {
 				return true
 			}
-			spec, ok := decl.Specs[0].(*ast.TypeSpec)
-			if !ok {
-				return true
+			for _, spec := range decl.Specs {
+				tspec, ok := spec.(*ast.TypeSpec)
+				if !ok {
+					return true
+				}
+				s.Name = tspec.Name.String()
+				stype, ok := tspec.Type.(*ast.StructType)
+				if !ok {
+					return true
+				}
+				if decl.Doc != nil {
+					s.Doc = decl.Doc.Text()
+				}
+				s.Fields = Fields(pkg, file, stype)
+				ss = append(ss, &s)
 			}
-			s.Name = spec.Name.String()
-			stype, ok := spec.Type.(*ast.StructType)
-			if !ok {
-				return true
-			}
-			if decl.Doc != nil {
-				s.Doc = decl.Doc.Text()
-			}
-			s.Fields = Fields(pkg, file, stype)
-			ss = append(ss, &s)
 			return false
 		})
 	}
