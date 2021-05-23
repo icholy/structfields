@@ -75,7 +75,6 @@ func TestResolve(t *testing.T) {
 }
 
 func TestFields(t *testing.T) {
-	t.SkipNow()
 	pkg := load(t)
 	stype, ok := Resolve(pkg, "B")
 	assert.Assert(t, ok)

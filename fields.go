@@ -90,6 +90,12 @@ func Resolve(pkg *packages.Package, name string) (*ast.StructType, bool) {
 func Fields(pkg *packages.Package, stype *ast.StructType) []*FieldType {
 	var ff []*FieldType
 	for _, f := range stype.Fields.List {
+		// if there are no names, it's embedded
+		if len(f.Names) == 0 {
+			if stype0, ok := Resolve(pkg, exprfmt(f.Type)); ok {
+				ff = append(ff, Fields(pkg, stype0)...)
+			}
+		}
 		for _, name := range f.Names {
 			if !ast.IsExported(name.Name) {
 				continue
