@@ -8,3 +8,7 @@ type A struct {
 	F3 bool
 	F4 time.Duration
 }
+
+type B struct {
+	A
+}
