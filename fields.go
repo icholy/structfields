@@ -83,6 +83,37 @@ func ResolveType(pkg *packages.Package, name string) (*ast.TypeSpec, bool) {
 	return nil, false
 }
 
+func StructFields(pkg *packages.Package, stype *ast.StructType) []*FieldType {
+	var ff []*FieldType
+	for _, f := range stype.Fields.List {
+		if len(f.Names) != 1 {
+			continue
+		}
+		name := f.Names[0].Name
+		if !ast.IsExported(name) {
+			continue
+		}
+		var doctxt string
+		if f.Doc != nil {
+			doctxt = f.Doc.Text()
+		}
+		if doctxt == "" && f.Comment != nil {
+			doctxt = f.Comment.Text()
+		}
+		var tagtxt string
+		if f.Tag != nil {
+			tagtxt = f.Tag.Value
+		}
+		ff = append(ff, &FieldType{
+			Name: name,
+			Type: exprfmt(f.Type),
+			Doc:  doctxt,
+			Tag:  tagtxt,
+		})
+	}
+	return ff
+}
+
 func Find(pkg *packages.Package) []*StructType {
 	var ss []*StructType
 	for _, file := range pkg.Syntax {
@@ -112,32 +143,7 @@ func Find(pkg *packages.Package) []*StructType {
 					}
 				}
 			}
-			for _, f := range stype.Fields.List {
-				if len(f.Names) != 1 {
-					continue
-				}
-				name := f.Names[0].Name
-				if !ast.IsExported(name) {
-					continue
-				}
-				var doctxt string
-				if f.Doc != nil {
-					doctxt = f.Doc.Text()
-				}
-				if doctxt == "" && f.Comment != nil {
-					doctxt = f.Comment.Text()
-				}
-				var tagtxt string
-				if f.Tag != nil {
-					tagtxt = f.Tag.Value
-				}
-				s.Fields = append(s.Fields, &FieldType{
-					Name: name,
-					Type: exprfmt(f.Type),
-					Doc:  doctxt,
-					Tag:  tagtxt,
-				})
-			}
+			s.Fields = StructFields(pkg, stype)
 			ss = append(ss, &s)
 			return false
 		})
