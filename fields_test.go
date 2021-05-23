@@ -67,4 +67,9 @@ func TestResolve(t *testing.T) {
 		assert.Assert(t, ok)
 		assert.Equal(t, spec.Name.String(), "A")
 	})
+	t.Run("sub.C", func(t *testing.T) {
+		spec, ok := ResolveType(pkg, "sub.C")
+		assert.Assert(t, ok)
+		assert.Equal(t, spec.Name.String(), "C")
+	})
 }

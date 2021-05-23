@@ -1,6 +1,10 @@
 package testmod
 
-import "time"
+import (
+	"time"
+
+	"testmod/sub"
+)
 
 type A struct {
 	F1 string
@@ -11,4 +15,5 @@ type A struct {
 
 type B struct {
 	A
+	sub.C
 }
