@@ -2,6 +2,8 @@
 
 > Enumerate struct types and their fields from Go source files.
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/icholy/structfields.svg)](https://pkg.go.dev/github.com/icholy/structfields)
+
 **Notes**
 
 * The intended use-case is generating docs for config structs.
