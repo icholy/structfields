@@ -3,6 +3,7 @@ package testmod
 import (
 	"time"
 
+	"testmod/other" // different
 	"testmod/sub"
 )
 
@@ -16,4 +17,5 @@ type A struct {
 
 type B struct {
 	sub.C
+	different.X
 }

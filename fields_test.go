@@ -49,14 +49,11 @@ func TestStructs(t *testing.T) {
 		})
 	})
 	t.Run("B", func(t *testing.T) {
-		t.SkipNow()
 		assert.DeepEqual(t, lookup("B"), &StructType{
 			Name: "B",
 			Fields: []*FieldType{
 				{Name: "F1", Type: "string"},
-				{Name: "F2", Type: "int"},
-				{Name: "F3", Type: "bool"},
-				{Name: "F4", Type: "time.Duration"},
+				{Name: "F42", Type: "int64"},
 			},
 		})
 	})
