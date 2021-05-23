@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"strconv"
+	"strings"
 
 	"golang.org/x/tools/go/packages"
 )
@@ -12,7 +13,6 @@ import (
 // StructType contains details about a struct and it's fields.
 type StructType struct {
 	Doc        string
-	Comment    string
 	Name       string
 	Directives []string
 	Fields     []*FieldType
@@ -174,6 +174,11 @@ func Structs(pkg *packages.Package) []*StructType {
 				}
 				if decl.Doc != nil {
 					s.Doc = decl.Doc.Text()
+					for _, comment := range decl.Doc.List {
+						if strings.HasPrefix(comment.Text, "//go:") {
+							s.Directives = append(s.Directives, comment.Text[5:])
+						}
+					}
 				}
 				s.Fields = Fields(pkg, file, stype)
 				ss = append(ss, &s)

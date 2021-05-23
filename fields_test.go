@@ -55,8 +55,9 @@ func TestStructs(t *testing.T) {
 	})
 	t.Run("E", func(t *testing.T) {
 		assert.DeepEqual(t, lookup("E"), &StructType{
-			Name: "E",
-			Doc:  "E is a struct\n",
+			Name:       "E",
+			Doc:        "E is a struct\n",
+			Directives: []string{"what", "directive"},
 			Fields: []*FieldType{
 				{
 					Name:    "F1",
