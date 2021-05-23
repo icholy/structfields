@@ -7,3 +7,7 @@ import (
 type D struct {
 	sub0.C
 }
+
+type F struct {
+	A
+}

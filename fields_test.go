@@ -78,6 +78,19 @@ func TestStructs(t *testing.T) {
 			},
 		})
 	})
+	t.Run("F", func(t *testing.T) {
+		assert.DeepEqual(t, lookup("F"), &StructType{
+			Name: "F",
+			Fields: []*FieldType{
+				{Name: "F1", Type: "string"},
+				{Name: "F2", Type: "int"},
+				{Name: "F3", Type: "bool"},
+				{Name: "F4", Type: "time.Duration"},
+				{Name: "F5", Type: "byte"},
+				{Name: "F6", Type: "byte"},
+			},
+		})
+	})
 }
 
 func TestResolve(t *testing.T) {
