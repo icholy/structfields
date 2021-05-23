@@ -86,15 +86,14 @@ func ResolveType(pkg *packages.Package, name string) (*ast.StructType, *ast.File
 			if stype != nil {
 				return false
 			}
-			spec, ok := n.(*ast.TypeSpec)
+			tspec, ok := n.(*ast.TypeSpec)
 			if !ok {
 				return true
 			}
-			if spec.Name.Name != name {
+			if tspec.Name.Name != name {
 				return false
 			}
-			st, ok := spec.Type.(*ast.StructType)
-			if ok {
+			if st, ok := tspec.Type.(*ast.StructType); ok {
 				stype = st
 				return false
 			}
