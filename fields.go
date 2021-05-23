@@ -9,6 +9,7 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
+// StructType contains details about a struct and it's fields.
 type StructType struct {
 	Doc        string
 	Comment    string
@@ -17,6 +18,7 @@ type StructType struct {
 	Fields     []*FieldType
 }
 
+// FieldType contains information about a struct field.
 type FieldType struct {
 	Name    string
 	Type    string
@@ -25,14 +27,19 @@ type FieldType struct {
 	Tag     string
 }
 
+// Needs is the packages.Mode with all the flags required to find fields.
+const Needs = packages.NeedName |
+	packages.NeedDeps |
+	packages.NeedFiles |
+	packages.NeedSyntax |
+	packages.NeedImports
+
+// Load finds all structs in the packages specified in the patterns.
+// Embeded fields are treated the same as regular fields.
 func Load(dir string, patterns ...string) ([]*StructType, error) {
 	cfg := &packages.Config{
-		Dir: dir,
-		Mode: packages.NeedName |
-			packages.NeedDeps |
-			packages.NeedFiles |
-			packages.NeedSyntax |
-			packages.NeedImports,
+		Dir:  dir,
+		Mode: Needs,
 	}
 	pkgs, err := packages.Load(cfg, patterns...)
 	if err != nil {
@@ -45,6 +52,8 @@ func Load(dir string, patterns ...string) ([]*StructType, error) {
 	return ss, nil
 }
 
+// ResolvePackage will resolve a package by its name.
+// It's legal to pass a nil file, but then import aliases and duplicates are not handled.
 func ResolvePackage(pkg *packages.Package, file *ast.File, name string) (*packages.Package, bool) {
 	if file == nil {
 		// if there's no file, assume there are no aliases
@@ -68,6 +77,8 @@ func ResolvePackage(pkg *packages.Package, file *ast.File, name string) (*packag
 	return nil, false
 }
 
+// Resolve type returns a struct type defined in the provided package along with the file it's declared in.
+// The bool return value will be false if the name could not be resolved.
 func ResolveType(pkg *packages.Package, name string) (*ast.StructType, *ast.File, bool) {
 	for _, file := range pkg.Syntax {
 		var stype *ast.StructType
@@ -96,6 +107,8 @@ func ResolveType(pkg *packages.Package, name string) (*ast.StructType, *ast.File
 	return nil, nil, false
 }
 
+// Fields returns a list of the struct type's fields.
+// A nil file may be passed, but this limits the ability to resolve embeded types.
 func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*FieldType {
 	var ff []*FieldType
 	for _, f := range stype.Fields.List {
@@ -137,6 +150,8 @@ func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*Fie
 	return ff
 }
 
+// Structs finds all structs in the provided package.
+// Embeded fields are treated the same as regular fields.
 func Structs(pkg *packages.Package) []*StructType {
 	var ss []*StructType
 	for _, file := range pkg.Syntax {

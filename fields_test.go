@@ -10,12 +10,8 @@ import (
 func load(t *testing.T) *packages.Package {
 	t.Helper()
 	cfg := &packages.Config{
-		Dir: "testmod",
-		Mode: packages.NeedName |
-			packages.NeedDeps |
-			packages.NeedFiles |
-			packages.NeedSyntax |
-			packages.NeedImports,
+		Dir:  "testmod",
+		Mode: Needs,
 	}
 	pkgs, err := packages.Load(cfg, ".")
 	assert.NilError(t, err)
