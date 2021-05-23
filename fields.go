@@ -43,7 +43,7 @@ func Load(dir string, pkgpath string) ([]*StructType, error) {
 	return ss, nil
 }
 
-func ResolveType(pkg *packages.Package, name string) (*ast.TypeSpec, bool) {
+func Resolve(pkg *packages.Package, name string) (*ast.StructType, bool) {
 	// if the name is prefixed by a path, change pkg to the appropriate one
 	if i := strings.IndexByte(name, '.'); i >= 0 {
 		pkgname := name[:i]
@@ -61,29 +61,33 @@ func ResolveType(pkg *packages.Package, name string) (*ast.TypeSpec, bool) {
 		}
 	}
 	for _, file := range pkg.Syntax {
-		var spec *ast.TypeSpec
+		var stype *ast.StructType
 		ast.Inspect(file, func(n ast.Node) bool {
-			if spec != nil {
+			if stype != nil {
 				return false
 			}
-			s, ok := n.(*ast.TypeSpec)
+			spec, ok := n.(*ast.TypeSpec)
 			if !ok {
 				return true
 			}
-			if s.Name.Name == name {
-				spec = s
+			if spec.Name.Name != name {
+				return false
+			}
+			st, ok := spec.Type.(*ast.StructType)
+			if ok {
+				stype = st
 				return false
 			}
 			return true
 		})
-		if spec != nil {
-			return spec, true
+		if stype != nil {
+			return stype, true
 		}
 	}
 	return nil, false
 }
 
-func StructFields(pkg *packages.Package, stype *ast.StructType) []*FieldType {
+func Fields(pkg *packages.Package, stype *ast.StructType) []*FieldType {
 	var ff []*FieldType
 	for _, f := range stype.Fields.List {
 		if len(f.Names) != 1 {
@@ -143,7 +147,7 @@ func Find(pkg *packages.Package) []*StructType {
 					}
 				}
 			}
-			s.Fields = StructFields(pkg, stype)
+			s.Fields = Fields(pkg, stype)
 			ss = append(ss, &s)
 			return false
 		})

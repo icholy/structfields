@@ -1,7 +1,6 @@
 package structfields
 
 import (
-	"go/ast"
 	"testing"
 
 	"golang.org/x/tools/go/packages"
@@ -64,24 +63,20 @@ func TestLoad(t *testing.T) {
 func TestResolve(t *testing.T) {
 	pkg := load(t)
 	t.Run("A", func(t *testing.T) {
-		spec, ok := ResolveType(pkg, "A")
+		_, ok := Resolve(pkg, "A")
 		assert.Assert(t, ok)
-		assert.Equal(t, spec.Name.String(), "A")
 	})
 	t.Run("sub.C", func(t *testing.T) {
-		spec, ok := ResolveType(pkg, "sub.C")
+		_, ok := Resolve(pkg, "sub.C")
 		assert.Assert(t, ok)
-		assert.Equal(t, spec.Name.String(), "C")
 	})
 }
 
-func TestStructFields(t *testing.T) {
+func TestFields(t *testing.T) {
 	pkg := load(t)
-	spec, ok := ResolveType(pkg, "B")
+	stype, ok := Resolve(pkg, "B")
 	assert.Assert(t, ok)
-	stype, ok := spec.Type.(*ast.StructType)
-	assert.Assert(t, ok)
-	ff := StructFields(pkg, stype)
+	ff := Fields(pkg, stype)
 	assert.DeepEqual(t, ff, []*FieldType{
 		{
 			Name: "F1",
