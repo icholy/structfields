@@ -77,7 +77,7 @@ func ResolvePackage(pkg *packages.Package, file *ast.File, name string) (*packag
 	return nil, false
 }
 
-// Resolve type returns a struct type defined in the provided package along with the file it's declared in.
+// ResolveType returns a struct type defined in the provided package along with the file it's declared in.
 // The bool return value will be false if the name could not be resolved.
 func ResolveType(pkg *packages.Package, name string) (*ast.StructType, *ast.File, bool) {
 	for _, file := range pkg.Syntax {
