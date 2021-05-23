@@ -76,13 +76,26 @@ func TestResolve(t *testing.T) {
 
 func TestFields(t *testing.T) {
 	pkg := load(t)
-	stype, ok := Resolve(pkg, "B")
-	assert.Assert(t, ok)
-	ff := Fields(pkg, stype)
-	assert.DeepEqual(t, ff, []*FieldType{
-		{
-			Name: "F1",
-			Type: "string",
-		},
+	t.Run("B", func(t *testing.T) {
+		stype, ok := Resolve(pkg, "B")
+		assert.Assert(t, ok)
+		ff := Fields(pkg, stype)
+		assert.DeepEqual(t, ff, []*FieldType{
+			{
+				Name: "F1",
+				Type: "string",
+			},
+		})
+	})
+	t.Run("D", func(t *testing.T) {
+		stype, ok := Resolve(pkg, "D")
+		assert.Assert(t, ok)
+		ff := Fields(pkg, stype)
+		assert.DeepEqual(t, ff, []*FieldType{
+			{
+				Name: "F1",
+				Type: "string",
+			},
+		})
 	})
 }
