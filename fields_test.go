@@ -65,32 +65,23 @@ func TestStructs(t *testing.T) {
 func TestResolve(t *testing.T) {
 	pkg := load(t)
 	t.Run("A", func(t *testing.T) {
-		_, ok := Resolve(pkg, "A")
+		_, _, ok := ResolveType(pkg, "A")
 		assert.Assert(t, ok)
 	})
 	t.Run("sub.C", func(t *testing.T) {
-		_, ok := Resolve(pkg, "sub.C")
+		pkg0, ok := ResolvePackage(pkg, nil, "sub")
+		assert.Assert(t, ok)
+		_, _, ok = ResolveType(pkg0, "C")
 		assert.Assert(t, ok)
 	})
 }
 
 func TestFields(t *testing.T) {
 	pkg := load(t)
-	t.Run("B", func(t *testing.T) {
-		stype, ok := Resolve(pkg, "B")
-		assert.Assert(t, ok)
-		ff := Fields(pkg, stype)
-		assert.DeepEqual(t, ff, []*FieldType{
-			{
-				Name: "F1",
-				Type: "string",
-			},
-		})
-	})
 	t.Run("D", func(t *testing.T) {
-		stype, ok := Resolve(pkg, "D")
+		stype, file, ok := ResolveType(pkg, "D")
 		assert.Assert(t, ok)
-		ff := Fields(pkg, stype)
+		ff := Fields(pkg, file, stype)
 		assert.DeepEqual(t, ff, []*FieldType{
 			{
 				Name: "F1",

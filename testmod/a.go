@@ -17,9 +17,3 @@ type A struct {
 type B struct {
 	sub.C
 }
-
-type D struct {
-	sub.C
-	A
-	F1 bool
-}

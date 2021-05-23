@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"strconv"
 	"strings"
 
 	"golang.org/x/tools/go/packages"
@@ -43,23 +44,30 @@ func Load(dir string, pkgpath string) ([]*StructType, error) {
 	return ss, nil
 }
 
-func Resolve(pkg *packages.Package, name string) (*ast.StructType, bool) {
-	// if the name is prefixed by a path, change pkg to the appropriate one
-	if i := strings.IndexByte(name, '.'); i >= 0 {
-		pkgname := name[:i]
-		name = name[i+1:]
-		var found bool
+func ResolvePackage(pkg *packages.Package, file *ast.File, name string) (*packages.Package, bool) {
+	if file == nil {
+		// if there's no file, assume there are no aliases
 		for _, pkg0 := range pkg.Imports {
-			if pkg0.Name == pkgname {
-				pkg = pkg0
-				found = true
-				break
+			if pkg0.Name == name {
+				return pkg0, true
 			}
 		}
-		if !found {
-			return nil, false
+		return nil, false
+	}
+	for _, imp := range file.Imports {
+		pkgpath, _ := strconv.Unquote(imp.Path.Value)
+		if imp.Name != nil && imp.Name.Name == name {
+			pkg0, ok := pkg.Imports[pkgpath]
+			return pkg0, ok
+		}
+		if pkg0, ok := pkg.Imports[pkgpath]; ok && pkg0.Name == name {
+			return pkg0, true
 		}
 	}
+	return nil, false
+}
+
+func ResolveType(pkg *packages.Package, name string) (*ast.StructType, *ast.File, bool) {
 	for _, file := range pkg.Syntax {
 		var stype *ast.StructType
 		ast.Inspect(file, func(n ast.Node) bool {
@@ -81,20 +89,29 @@ func Resolve(pkg *packages.Package, name string) (*ast.StructType, bool) {
 			return true
 		})
 		if stype != nil {
-			return stype, true
+			return stype, file, true
 		}
 	}
-	return nil, false
+	return nil, nil, false
 }
 
-func Fields(pkg *packages.Package, stype *ast.StructType) []*FieldType {
+func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*FieldType {
 	var ff []*FieldType
 	for _, f := range stype.Fields.List {
 		// if there are no names, it's embedded
 		if len(f.Names) == 0 {
-			if stype0, ok := Resolve(pkg, exprfmt(f.Type)); ok {
-				ff = append(ff, Fields(pkg, stype0)...)
+			selexpr, ok := f.Type.(*ast.SelectorExpr)
+			if !ok {
+				continue
 			}
+			pkg0, ok := ResolvePackage(pkg, file, exprfmt(selexpr.X))
+			if !ok {
+				continue
+			}
+			if stype0, file, ok := ResolveType(pkg0, exprfmt(selexpr.Sel)); ok {
+				ff = append(ff, Fields(pkg0, file, stype0)...)
+			}
+			continue
 		}
 		for _, name := range f.Names {
 			if !ast.IsExported(name.Name) {
@@ -151,7 +168,7 @@ func Structs(pkg *packages.Package) []*StructType {
 					}
 				}
 			}
-			s.Fields = Fields(pkg, stype)
+			s.Fields = Fields(pkg, file, stype)
 			ss = append(ss, &s)
 			return false
 		})
