@@ -33,7 +33,8 @@ func TestStructs(t *testing.T) {
 	}
 	t.Run("A", func(t *testing.T) {
 		assert.DeepEqual(t, lookup("A"), &StructType{
-			Name: "A",
+			Name:       "A",
+			Directives: []string{},
 			Fields: []*FieldType{
 				{Name: "F1", Type: "string"},
 				{Name: "F2", Type: "int"},
@@ -46,7 +47,8 @@ func TestStructs(t *testing.T) {
 	})
 	t.Run("B", func(t *testing.T) {
 		assert.DeepEqual(t, lookup("B"), &StructType{
-			Name: "B",
+			Name:       "B",
+			Directives: []string{},
 			Fields: []*FieldType{
 				{Name: "F1", Type: "string"},
 				{Name: "F42", Type: "int64"},
@@ -81,7 +83,8 @@ func TestStructs(t *testing.T) {
 	})
 	t.Run("F", func(t *testing.T) {
 		assert.DeepEqual(t, lookup("F"), &StructType{
-			Name: "F",
+			Name:       "F",
+			Directives: []string{},
 			Fields: []*FieldType{
 				{Name: "F1", Type: "string"},
 				{Name: "F2", Type: "int"},
