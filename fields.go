@@ -149,12 +149,12 @@ func Structs(pkg *packages.Package) []*StructType {
 			for _, spec := range decl.Specs {
 				tspec, ok := spec.(*ast.TypeSpec)
 				if !ok {
-					return true
+					continue
 				}
 				s.Name = tspec.Name.String()
 				stype, ok := tspec.Type.(*ast.StructType)
 				if !ok {
-					return true
+					continue
 				}
 				if decl.Doc != nil {
 					s.Doc = decl.Doc.Text()
