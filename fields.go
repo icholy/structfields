@@ -114,15 +114,16 @@ func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*Fie
 	for _, f := range stype.Fields.List {
 		// if there are no names, it's embedded
 		if len(f.Names) == 0 {
-			selexpr, ok := f.Type.(*ast.SelectorExpr)
-			if !ok {
-				continue
+			pkg0 := pkg
+			expr := f.Type
+			// if it's a selector expression, it's a type in a different package
+			if selexpr, ok := expr.(*ast.SelectorExpr); ok {
+				if pkg0, ok = ResolvePackage(pkg, file, exprfmt(selexpr.X)); !ok {
+					continue
+				}
+				expr = selexpr.Sel
 			}
-			pkg0, ok := ResolvePackage(pkg, file, exprfmt(selexpr.X))
-			if !ok {
-				continue
-			}
-			if stype0, file, ok := ResolveType(pkg0, exprfmt(selexpr.Sel)); ok {
+			if stype0, file, ok := ResolveType(pkg0, exprfmt(expr)); ok {
 				ff = append(ff, Fields(pkg0, file, stype0)...)
 			}
 			continue
