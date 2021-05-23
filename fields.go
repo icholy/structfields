@@ -43,6 +43,46 @@ func Load(dir string, pkgpath string) ([]*StructType, error) {
 	return ss, nil
 }
 
+func ResolveType(pkg *packages.Package, name string) (*ast.TypeSpec, bool) {
+	// if the name is prefixed by a path, change pkg to the appropriate one
+	if i := strings.IndexByte(name, '.'); i >= 0 {
+		pkgname := name[:i]
+		name = name[i+1:]
+		var found bool
+		for _, pkg0 := range pkg.Imports {
+			if pkg0.Name == pkgname {
+				pkg = pkg0
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, false
+		}
+	}
+	for _, file := range pkg.Syntax {
+		var spec *ast.TypeSpec
+		ast.Inspect(file, func(n ast.Node) bool {
+			if spec != nil {
+				return false
+			}
+			s, ok := n.(*ast.TypeSpec)
+			if !ok {
+				return true
+			}
+			if s.Name.Name == name {
+				spec = s
+				return false
+			}
+			return true
+		})
+		if spec != nil {
+			return spec, true
+		}
+	}
+	return nil, false
+}
+
 func Find(pkg *packages.Package) []*StructType {
 	var ss []*StructType
 	for _, file := range pkg.Syntax {
