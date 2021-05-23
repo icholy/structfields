@@ -25,7 +25,7 @@ type FieldType struct {
 	Tag     string
 }
 
-func Load(dir string, pkgpath string) ([]*StructType, error) {
+func Load(dir string, patterns ...string) ([]*StructType, error) {
 	cfg := &packages.Config{
 		Dir: dir,
 		Mode: packages.NeedName |
@@ -34,7 +34,7 @@ func Load(dir string, pkgpath string) ([]*StructType, error) {
 			packages.NeedSyntax |
 			packages.NeedImports,
 	}
-	pkgs, err := packages.Load(cfg, pkgpath)
+	pkgs, err := packages.Load(cfg, patterns...)
 	if err != nil {
 		return nil, err
 	}
