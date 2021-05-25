@@ -106,6 +106,29 @@ func ResolveType(pkg *packages.Package, name string) (*ast.StructType, *ast.File
 	return nil, nil, false
 }
 
+// ResolveTypeExpr returns the struct type referred to by the provided expression.
+// A nil file may be passed, but package resolution will not be accurate.
+// The boom return value will be false if the type expression could not be resolved to a struct type.
+func ResolveTypeExpr(pkg *packages.Package, file *ast.File, expr ast.Expr) (*ast.StructType, *ast.File, bool) {
+	// if it's a selector expression, it's a type in a different package
+	if selexpr, ok := expr.(*ast.SelectorExpr); ok {
+		pkgname, ok := selexpr.X.(*ast.Ident)
+		if !ok {
+			return nil, nil, false
+		}
+		pkg, ok = ResolvePackage(pkg, file, pkgname.String())
+		if !ok {
+			return nil, nil, false
+		}
+		return ResolveTypeExpr(pkg, nil, selexpr.Sel)
+	}
+	typename, ok := expr.(*ast.Ident)
+	if !ok {
+		return nil, nil, false
+	}
+	return ResolveType(pkg, typename.String())
+}
+
 // Fields returns a list of the struct type's fields.
 // A nil file may be passed, but this limits the ability to resolve embeded types.
 func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*FieldType {
@@ -113,17 +136,8 @@ func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*Fie
 	for _, f := range stype.Fields.List {
 		// if there are no names, it's embedded
 		if len(f.Names) == 0 {
-			pkg0 := pkg
-			expr := f.Type
-			// if it's a selector expression, it's a type in a different package
-			if selexpr, ok := expr.(*ast.SelectorExpr); ok {
-				if pkg0, ok = ResolvePackage(pkg, file, exprfmt(selexpr.X)); !ok {
-					continue
-				}
-				expr = selexpr.Sel
-			}
-			if stype0, file, ok := ResolveType(pkg0, exprfmt(expr)); ok {
-				ff = append(ff, Fields(pkg0, file, stype0)...)
+			if stype0, file0, ok := ResolveTypeExpr(pkg, file, f.Type); ok {
+				ff = append(ff, Fields(pkg, file0, stype0)...)
 			}
 			continue
 		}
