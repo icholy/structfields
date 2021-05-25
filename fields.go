@@ -222,6 +222,6 @@ func exprfmt(expr ast.Expr) string {
 	case *ast.ChanType:
 		return fmt.Sprintf("chan %s", exprfmt(e.Value))
 	default:
-		panic(fmt.Errorf("not implemented: %#v", expr))
+		return fmt.Sprintf("%T", expr)
 	}
 }
