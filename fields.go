@@ -21,7 +21,7 @@ type StructType struct {
 // FieldType contains information about a struct field.
 type FieldType struct {
 	Name    string
-	Type    string
+	Type    ast.Expr
 	Doc     string
 	Comment string
 	Tag     string
@@ -147,7 +147,7 @@ func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*Fie
 			}
 			ft := FieldType{
 				Name: name.String(),
-				Type: FormatTypeExpr(f.Type),
+				Type: f.Type,
 			}
 			if f.Doc != nil {
 				ft.Doc = f.Doc.Text()

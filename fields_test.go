@@ -3,9 +3,12 @@ package structfields
 import (
 	"testing"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"golang.org/x/tools/go/packages"
 	"gotest.tools/v3/assert"
 )
+
+var ignoreType = cmpopts.IgnoreFields(FieldType{}, "Type")
 
 func load(t *testing.T) *packages.Package {
 	t.Helper()
@@ -36,24 +39,24 @@ func TestStructs(t *testing.T) {
 			Name:       "A",
 			Directives: []string{},
 			Fields: []*FieldType{
-				{Name: "F1", Type: "string"},
-				{Name: "F2", Type: "int"},
-				{Name: "F3", Type: "bool"},
-				{Name: "F4", Type: "time.Duration"},
-				{Name: "F5", Type: "byte"},
-				{Name: "F6", Type: "byte"},
+				{Name: "F1"},
+				{Name: "F2"},
+				{Name: "F3"},
+				{Name: "F4"},
+				{Name: "F5"},
+				{Name: "F6"},
 			},
-		})
+		}, ignoreType)
 	})
 	t.Run("B", func(t *testing.T) {
 		assert.DeepEqual(t, lookup("B"), &StructType{
 			Name:       "B",
 			Directives: []string{},
 			Fields: []*FieldType{
-				{Name: "F1", Type: "string"},
-				{Name: "F42", Type: "int64"},
+				{Name: "F1"},
+				{Name: "F42"},
 			},
-		})
+		}, ignoreType)
 	})
 	t.Run("E", func(t *testing.T) {
 		assert.DeepEqual(t, lookup("E"), &StructType{
@@ -63,37 +66,34 @@ func TestStructs(t *testing.T) {
 			Fields: []*FieldType{
 				{
 					Name:    "F1",
-					Type:    "string",
 					Doc:     "F1 is a string\n",
 					Comment: "F1 is the first field\n",
 					Tag:     "`json:\"Test\"`",
 				},
 				{
 					Name:    "F2",
-					Type:    "int",
 					Comment: "F2 only has a comment\n",
 				},
 				{
 					Name: "F3",
-					Type: "bool",
 					Doc:  "F3 only has a doc\n",
 				},
 			},
-		})
+		}, ignoreType)
 	})
 	t.Run("F", func(t *testing.T) {
 		assert.DeepEqual(t, lookup("F"), &StructType{
 			Name:       "F",
 			Directives: []string{},
 			Fields: []*FieldType{
-				{Name: "F1", Type: "string"},
-				{Name: "F2", Type: "int"},
-				{Name: "F3", Type: "bool"},
-				{Name: "F4", Type: "time.Duration"},
-				{Name: "F5", Type: "byte"},
-				{Name: "F6", Type: "byte"},
+				{Name: "F1"},
+				{Name: "F2"},
+				{Name: "F3"},
+				{Name: "F4"},
+				{Name: "F5"},
+				{Name: "F6"},
 			},
-		})
+		}, ignoreType)
 	})
 }
 
@@ -120,8 +120,7 @@ func TestFields(t *testing.T) {
 		assert.DeepEqual(t, ff, []*FieldType{
 			{
 				Name: "F1",
-				Type: "string",
 			},
-		})
+		}, ignoreType)
 	})
 }
