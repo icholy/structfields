@@ -147,7 +147,7 @@ func Fields(pkg *packages.Package, file *ast.File, stype *ast.StructType) []*Fie
 			}
 			ft := FieldType{
 				Name: name.String(),
-				Type: exprfmt(f.Type),
+				Type: FormatTypeExpr(f.Type),
 			}
 			if f.Doc != nil {
 				ft.Doc = f.Doc.Text()
@@ -203,24 +203,26 @@ func Structs(pkg *packages.Package) []*StructType {
 	return ss
 }
 
-func exprfmt(expr ast.Expr) string {
+// FormatTypeExpr poorly formats a subset of possible type expressions.
+// TODO: make this method less terrible.
+func FormatTypeExpr(expr ast.Expr) string {
 	switch e := expr.(type) {
 	case *ast.StarExpr:
-		return "*" + exprfmt(e.X)
+		return "*" + FormatTypeExpr(e.X)
 	case *ast.Ident:
 		return e.Name
 	case *ast.ArrayType:
-		return "[]" + exprfmt(e.Elt)
+		return "[]" + FormatTypeExpr(e.Elt)
 	case *ast.MapType:
-		return fmt.Sprintf("map[%s]%s", exprfmt(e.Key), exprfmt(e.Value))
+		return fmt.Sprintf("map[%s]%s", FormatTypeExpr(e.Key), FormatTypeExpr(e.Value))
 	case *ast.SelectorExpr:
-		return fmt.Sprintf("%s.%s", exprfmt(e.X), exprfmt(e.Sel))
+		return fmt.Sprintf("%s.%s", FormatTypeExpr(e.X), FormatTypeExpr(e.Sel))
 	case *ast.StructType:
 		return "struct{ ... }"
 	case *ast.FuncType:
 		return "func(...) ..."
 	case *ast.ChanType:
-		return fmt.Sprintf("chan %s", exprfmt(e.Value))
+		return fmt.Sprintf("chan %s", FormatTypeExpr(e.Value))
 	default:
 		return fmt.Sprintf("%T", expr)
 	}
